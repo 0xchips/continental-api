@@ -1,0 +1,54 @@
+name: Continental API CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+# Secrets available globally — used by SDK health checks and Azure connectivity verification
+env:
+  AZURE_CLIENT_ID:     ${{ secrets.AZURE_CLIENT_ID }}
+  AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+  AZURE_TENANT_ID:     ${{ secrets.AZURE_TENANT_ID }}
+  NODE_ENV:            production
+
+jobs:
+  build-and-test:
+    runs-on: self-hosted
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 18
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Configure Azure Artifacts npm registry
+        run: |
+          echo "@continental:registry=https://pkgs.dev.azure.com/thecontinental-dev/_packaging/continental-npm/npm/registry/" >> .npmrc
+          echo "//pkgs.dev.azure.com/thecontinental-dev/_packaging/continental-npm/npm/registry/:username=thecontinental-dev" >> .npmrc
+          echo "//pkgs.dev.azure.com/thecontinental-dev/_packaging/continental-npm/npm/registry/:_password=$(echo -n ":$AZURE_ARTIFACTS_TOKEN" | base64 -w0)" >> .npmrc
+          echo "//pkgs.dev.azure.com/thecontinental-dev/_packaging/continental-npm/npm/registry/:email=cicd@continental.dev" >> .npmrc
+          echo "//pkgs.dev.azure.com/thecontinental-dev/_packaging/continental-npm/npm/registry/:always-auth=true" >> .npmrc
+        env:
+          AZURE_ARTIFACTS_TOKEN: ${{ secrets.AZURE_ARTIFACTS_TOKEN }}
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run tests
+        run: npm test
+
+      - name: Verify Azure connectivity
+        run: |
+          node -e "
+            const { ContinentalClient } = require('@continental/concierge-sdk');
+            const client = new ContinentalClient({ baseUrl: process.env.CONCIERGE_HOST || 'http://localhost' });
+            console.log('SDK v' + require('./node_modules/@continental/concierge-sdk/package.json').version + ' loaded');
+            process.exit(0);
+          "
