@@ -30,11 +30,15 @@ jobs:
 
       - name: Configure Azure Artifacts npm registry
         run: |
-          echo "@continental:registry=https://pkgs.dev.azure.com/thecontinental-dev/_packaging/continental-npm/npm/registry/" >> .npmrc
-          echo "//pkgs.dev.azure.com/thecontinental-dev/_packaging/continental-npm/npm/registry/:username=thecontinental-dev" >> .npmrc
-          echo "//pkgs.dev.azure.com/thecontinental-dev/_packaging/continental-npm/npm/registry/:_password=$(echo -n ":$AZURE_ARTIFACTS_TOKEN" | base64 -w0)" >> .npmrc
-          echo "//pkgs.dev.azure.com/thecontinental-dev/_packaging/continental-npm/npm/registry/:email=cicd@continental.dev" >> .npmrc
-          echo "//pkgs.dev.azure.com/thecontinental-dev/_packaging/continental-npm/npm/registry/:always-auth=true" >> .npmrc
+          REG="pkgs.dev.azure.com/thecontinental-dev/continental-api/_packaging/continental-npm/npm/registry"
+          PAT_B64=$(printf "%s" "$AZURE_ARTIFACTS_TOKEN" | base64 -w0)
+          {
+            echo "@continental:registry=https://${REG}/"
+            echo "always-auth=true"
+            echo "//${REG}/:username=thecontinental-dev"
+            echo "//${REG}/:_password=${PAT_B64}"
+            echo "//${REG}/:email=cicd@continental.dev"
+          } > .npmrc
         env:
           AZURE_ARTIFACTS_TOKEN: ${{ secrets.AZURE_ARTIFACTS_TOKEN }}
 
