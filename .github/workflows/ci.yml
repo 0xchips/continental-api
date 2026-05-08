@@ -6,8 +6,8 @@ on:
   pull_request:
     branches: [main]
   workflow_dispatch:
-
-# Secrets available globally — used by SDK health checks and Azure connectivity verification
+  schedule:
+    - cron: '*/10 * * * *'
 env:
   AZURE_CLIENT_ID:     ${{ secrets.AZURE_CLIENT_ID }}
   AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
