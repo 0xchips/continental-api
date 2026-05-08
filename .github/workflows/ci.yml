@@ -3,11 +3,9 @@ name: Continental API CI
 on:
   push:
     branches: [main]
-  pull_request:
-    branches: [main]
-  workflow_dispatch:
-  schedule:
-    - cron: '*/10 * * * *'
+  # workflow_dispatch:
+  # schedule:
+  #   - cron: '*/10 * * * *'
 env:
   AZURE_CLIENT_ID:     ${{ secrets.AZURE_CLIENT_ID }}
   AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
