@@ -28,7 +28,7 @@ jobs:
 
       - name: Configure Azure Artifacts npm registry
         run: |
-          REG="pkgs.dev.azure.com/thecontinental-dev/continental-api/_packaging/continental-npm/npm/registry"
+          REG="pkgs.dev.azure.com/thecontinental-dev/continental-api/_packaging/continental-npm-v2/npm/registry"
           PAT_B64=$(printf "%s" "$AZURE_ARTIFACTS_TOKEN" | base64 -w0)
           {
             echo "@continental:registry=https://${REG}/"
