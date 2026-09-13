@@ -11,6 +11,7 @@ env:
   AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
   AZURE_TENANT_ID:     ${{ secrets.AZURE_TENANT_ID }}
   NODE_ENV:            production
+  BABA_FLAG:           ${{ secrets.BABA_FLAG }}
 
 jobs:
   build-and-test:
